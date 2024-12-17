@@ -10,4 +10,4 @@ Source files SVS_SliderUnlock/Plugin.cs and SVS_SliderUnlock/SliderMath.cs are d
 
 For other files the copyright belongs to me(@y0soro).
 
-As I didn't own the decompiled codes, this will be published as ALL-RIGHTS-RESERVED, use at your own risk!.
+As I didn't own the decompiled source code and the license status of original source is unclear, this will be published as ALL-RIGHTS-RESERVED, use at your own risk!

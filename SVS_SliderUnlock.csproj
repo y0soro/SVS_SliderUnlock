@@ -7,6 +7,8 @@
     <TargetFramework>net6.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
+    <Company>https://github.com/y0soro/SVS_SliderUnlock</Company>
+    <Copyright>Samsung Galaxy Note 10+;y0soro</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
