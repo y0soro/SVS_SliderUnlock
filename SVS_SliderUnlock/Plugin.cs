@@ -168,17 +168,19 @@ public class Plugin : BasePlugin
             log2.LogError(bepInExErrorLogInterpolatedStringHandler);
             return;
         }
-        System.IntPtr intPtr = processModule.BaseAddress + 4096;
-        int num = processModule.ModuleMemorySize - 4096;
+        System.IntPtr intPtr = processModule.BaseAddress;
+        int num = processModule.ModuleMemorySize;
         using UnmanagedMemoryStream unmanagedMemoryStream = new UnmanagedMemoryStream(
             (byte*)(void*)intPtr,
             num,
             num,
             FileAccess.ReadWrite
         );
+
+        var anchors = new Anchors(Log, unmanagedMemoryStream, 4096);
+
         byte[] array = new byte[3] { 144, 144, 144 };
-        // unmanagedMemoryStream.Seek(7308865L, SeekOrigin.Begin);
-        unmanagedMemoryStream.Seek(Offset(0x180727a11), SeekOrigin.Begin);
+        unmanagedMemoryStream.Seek(anchors.EntryUndo_CheckSliderRatio, SeekOrigin.Begin);
         System.IntPtr lpAddress = (System.IntPtr)unmanagedMemoryStream.PositionPointer;
         uint lpflOldProtect2;
         if (
@@ -207,8 +209,7 @@ public class Plugin : BasePlugin
         else
         {
             unmanagedMemoryStream.Write(array, 0, 2);
-            // unmanagedMemoryStream.Seek(7308880L, SeekOrigin.Begin);
-            unmanagedMemoryStream.Seek(Offset(0x180727a20), SeekOrigin.Begin);
+            unmanagedMemoryStream.Seek(anchors.EntryUndo_ClampSliderRatioToOne, SeekOrigin.Begin);
             unmanagedMemoryStream.Write(array, 0, 3);
             NativeMethods.VirtualProtect(
                 lpAddress,
@@ -231,8 +232,7 @@ public class Plugin : BasePlugin
             log4.LogInfo(bepInExInfoLogInterpolatedStringHandler);
         }
         byte[] array2 = new byte[2] { 144, 144 };
-        // unmanagedMemoryStream.Seek(6623160L, SeekOrigin.Begin);
-        unmanagedMemoryStream.Seek(Offset(0x180680518), SeekOrigin.Begin);
+        unmanagedMemoryStream.Seek(anchors.IsFace_BranchLessThanZero, SeekOrigin.Begin);
         System.IntPtr lpAddress2 = (System.IntPtr)unmanagedMemoryStream.PositionPointer;
         if (
             !NativeMethods.VirtualProtect(
@@ -261,8 +261,7 @@ public class Plugin : BasePlugin
         {
             unmanagedMemoryStream.Write(array2, 0, array2.Length);
             byte[] array3 = new byte[2] { 144, 233 };
-            // unmanagedMemoryStream.Seek(6623227L, SeekOrigin.Begin);
-            unmanagedMemoryStream.Seek(Offset(0x18068055b), SeekOrigin.Begin);
+            unmanagedMemoryStream.Seek(anchors.IsFace_BranchLessThanZero2, SeekOrigin.Begin);
             unmanagedMemoryStream.Write(array3, 0, array3.Length);
             NativeMethods.VirtualProtect(
                 lpAddress2,
@@ -283,8 +282,7 @@ public class Plugin : BasePlugin
             log6.LogInfo(bepInExInfoLogInterpolatedStringHandler);
         }
         byte[] array4 = new byte[2] { 144, 144 };
-        // unmanagedMemoryStream.Seek(6627784L, SeekOrigin.Begin);
-        unmanagedMemoryStream.Seek(Offset(0x180681728), SeekOrigin.Begin);
+        unmanagedMemoryStream.Seek(anchors.IsBody_BranchLessThanZero, SeekOrigin.Begin);
         System.IntPtr lpAddress3 = (System.IntPtr)unmanagedMemoryStream.PositionPointer;
         if (
             !NativeMethods.VirtualProtect(
@@ -313,8 +311,7 @@ public class Plugin : BasePlugin
         {
             unmanagedMemoryStream.Write(array4, 0, array4.Length);
             byte[] array5 = new byte[2] { 144, 233 };
-            // unmanagedMemoryStream.Seek(6627851L, SeekOrigin.Begin);
-            unmanagedMemoryStream.Seek(Offset(0x18068176b), SeekOrigin.Begin);
+            unmanagedMemoryStream.Seek(anchors.IsBody_BranchLessThanZero2, SeekOrigin.Begin);
             unmanagedMemoryStream.Write(array5, 0, array5.Length);
             NativeMethods.VirtualProtect(
                 lpAddress3,
@@ -334,10 +331,13 @@ public class Plugin : BasePlugin
             }
             log8.LogInfo(bepInExInfoLogInterpolatedStringHandler);
         }
+
+        // mov    eax,0x1
+        // ret
+        // ; return 1
         byte[] array6 = new byte[6] { 184, 1, 0, 0, 0, 195 };
 
-        // unmanagedMemoryStream.Seek(64448L, SeekOrigin.Begin);
-        unmanagedMemoryStream.Seek(Offset(0x1800126b0), SeekOrigin.Begin);
+        unmanagedMemoryStream.Seek(anchors.IsBody_ValidateHumanDataBodyField, SeekOrigin.Begin);
         System.IntPtr lpAddress4 = (System.IntPtr)unmanagedMemoryStream.PositionPointer;
         if (
             !NativeMethods.VirtualProtect(
@@ -383,13 +383,9 @@ public class Plugin : BasePlugin
             }
             log10.LogInfo(bepInExInfoLogInterpolatedStringHandler);
         }
-        // dictionary_get_item_by_key = intPtr + 2486416 - 4096;
-        // list_get_item = intPtr + 12064 - 4096;
-        dictionary_get_item_by_key = intPtr + (int)Offset(0x18025d5d0);
-        // list_get_item = intPtr + (int)Offset(0x181530440);
-        list_get_item = intPtr + (int)Offset(0x180002f20);
-        // unmanagedMemoryStream.Seek(37089424L, SeekOrigin.Begin);
-        // unmanagedMemoryStream.Seek(Offset(0x182320d00), SeekOrigin.Begin);
+
+        dictionary_get_item_by_key = intPtr + (int)anchors.GetInfo_DictGetItemWithKey;
+        list_get_item = intPtr + (int)anchors.GetInfo_ListGetItem;
         byte[] array7 = new byte[14] { 255, 37, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
         System.IntPtr intPtr2 = (System.IntPtr)
             (delegate* unmanaged<
@@ -405,8 +401,7 @@ public class Plugin : BasePlugin
         {
             array7[6 + i] = (byte)((intPtr2.ToInt64() >> i * 8) & 0xFF);
         }
-        // unmanagedMemoryStream.Seek(37089424L, SeekOrigin.Begin);
-        unmanagedMemoryStream.Seek(Offset(0x182320d00), SeekOrigin.Begin);
+        unmanagedMemoryStream.Seek(anchors.AnimationKeyInfo_Controller_GetInfo, SeekOrigin.Begin);
         System.IntPtr intPtr3 = (System.IntPtr)unmanagedMemoryStream.PositionPointer;
         if (
             !NativeMethods.VirtualProtect(
@@ -458,8 +453,7 @@ public class Plugin : BasePlugin
         // JMP to unmodified ILLGames.Unity.AnimationKeyInfo.Controller$$GetInfo+0x0f
         unmanagedMemoryStream2.Write(array8, 0, array8.Length);
 
-        // unmanagedMemoryStream.Seek(37089424L, SeekOrigin.Begin);
-        unmanagedMemoryStream.Seek(Offset(0x182320d00), SeekOrigin.Begin);
+        unmanagedMemoryStream.Seek(anchors.AnimationKeyInfo_Controller_GetInfo, SeekOrigin.Begin);
         // modify first 14 bytes for jumping to hook function
         unmanagedMemoryStream.Write(array7, 0, array7.Length);
         NativeMethods.VirtualProtect(
