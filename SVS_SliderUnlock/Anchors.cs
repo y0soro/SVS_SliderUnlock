@@ -104,7 +104,7 @@ internal class Anchors
 
         // 0x1800126b0
         IsBody_ValidateHumanDataBodyField = Search(
-            "?? 53 ?? 83 ec 30 ?? 8b 1d 83 c5 27 04 0f 29 74 ?? 20 0f 28 f0 f3 0f 11 4c ?? 48 f3 0f 11 54 ?? 50",
+            "40 53 ?? 83 ec 30 ?? 8b 1d ?? ?? ?? ?? 0f 29 74 ?? 20 0f 28 f0 f3 0f 11 4c ?? 48 f3 0f 11 54 ?? 50",
             assert: 0x1800126b0
         );
 
