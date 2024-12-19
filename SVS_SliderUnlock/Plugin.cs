@@ -24,7 +24,7 @@ public class Plugin : BasePlugin
 {
     private static class NativeMethods
     {
-        [System.Flags]
+        [Flags]
         public enum AllocationType
         {
             Commit = 0x1000,
@@ -38,7 +38,7 @@ public class Plugin : BasePlugin
             LargePages = 0x20000000,
         }
 
-        [System.Flags]
+        [Flags]
         public enum MemoryProtection
         {
             Execute = 0x10,
@@ -59,16 +59,16 @@ public class Plugin : BasePlugin
         [DllImport("kernel32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         public static extern bool VirtualProtect(
-            System.IntPtr lpAddress,
-            System.UIntPtr dwSize,
+            IntPtr lpAddress,
+            UIntPtr dwSize,
             uint flNewProtect,
             out uint lpflOldProtect
         );
 
         [DllImport("kernel32.dll")]
-        public static extern System.IntPtr VirtualAlloc(
-            System.IntPtr lpAddress,
-            System.UIntPtr dwSize,
+        public static extern IntPtr VirtualAlloc(
+            IntPtr lpAddress,
+            UIntPtr dwSize,
             AllocationType lAllocationType,
             MemoryProtection flProtect
         );
@@ -76,43 +76,17 @@ public class Plugin : BasePlugin
 
     internal static new ManualLogSource Log;
 
-    private static System.IntPtr GetInfo_o;
+    private static IntPtr GetInfo_o;
 
-    private static System.IntPtr dictionary_get_item_by_key;
+    private static IntPtr dictionary_get_item_by_key;
 
-    private static System.IntPtr list_get_item;
+    private static IntPtr list_get_item;
 
     internal static Harmony Harmony { get; } = new Harmony("SVS_SliderUnlock");
 
     public static ConfigEntry<int> Minimum { get; private set; }
 
     public static ConfigEntry<int> Maximum { get; private set; }
-
-    private static long FindPosition(Stream stream, byte[] pattern)
-    {
-        long result = -1L;
-        int num = 0;
-        int num2;
-        while ((num2 = stream.ReadByte()) > -1)
-        {
-            if (pattern[num++] != num2)
-            {
-                stream.Position -= num - 1;
-                num = 0;
-            }
-            else if (num == pattern.Length)
-            {
-                result = stream.Position - num;
-                break;
-            }
-        }
-        return result;
-    }
-
-    static long Offset(long addr)
-    {
-        return addr - 0x180000000 - 4096;
-    }
 
     public override unsafe void Load()
     {
@@ -136,8 +110,11 @@ public class Plugin : BasePlugin
             )
         );
         ManualLogSource log = Log;
-        BepInExInfoLogInterpolatedStringHandler bepInExInfoLogInterpolatedStringHandler =
-            new BepInExInfoLogInterpolatedStringHandler(18, 1, out var isEnabled);
+        BepInExInfoLogInterpolatedStringHandler bepInExInfoLogInterpolatedStringHandler = new(
+            18,
+            1,
+            out var isEnabled
+        );
         if (isEnabled)
         {
             bepInExInfoLogInterpolatedStringHandler.AppendLiteral("Plugin ");
@@ -153,11 +130,14 @@ public class Plugin : BasePlugin
                 .Cast<ProcessModule>()
                 .First((ProcessModule x) => x.ModuleName == "GameAssembly.dll");
         }
-        catch (System.Exception t)
+        catch (Exception t)
         {
             ManualLogSource log2 = Log;
-            BepInExErrorLogInterpolatedStringHandler bepInExErrorLogInterpolatedStringHandler =
-                new BepInExErrorLogInterpolatedStringHandler(34, 1, out isEnabled);
+            BepInExErrorLogInterpolatedStringHandler bepInExErrorLogInterpolatedStringHandler = new(
+                34,
+                1,
+                out isEnabled
+            );
             if (isEnabled)
             {
                 bepInExErrorLogInterpolatedStringHandler.AppendLiteral(
@@ -168,9 +148,9 @@ public class Plugin : BasePlugin
             log2.LogError(bepInExErrorLogInterpolatedStringHandler);
             return;
         }
-        System.IntPtr intPtr = processModule.BaseAddress;
+        IntPtr intPtr = processModule.BaseAddress;
         int num = processModule.ModuleMemorySize;
-        using UnmanagedMemoryStream unmanagedMemoryStream = new UnmanagedMemoryStream(
+        using UnmanagedMemoryStream unmanagedMemoryStream = new(
             (byte*)(void*)intPtr,
             num,
             num,
@@ -179,22 +159,25 @@ public class Plugin : BasePlugin
 
         var anchors = new Anchors(Log, unmanagedMemoryStream, 4096);
 
-        byte[] array = new byte[3] { 144, 144, 144 };
+        byte[] array = [144, 144, 144];
         unmanagedMemoryStream.Seek(anchors.EntryUndo_CheckSliderRatio, SeekOrigin.Begin);
-        System.IntPtr lpAddress = (System.IntPtr)unmanagedMemoryStream.PositionPointer;
+        IntPtr lpAddress = (IntPtr)unmanagedMemoryStream.PositionPointer;
         uint lpflOldProtect2;
         if (
             !NativeMethods.VirtualProtect(
                 lpAddress,
-                (System.UIntPtr)(ulong)array.Length,
+                (UIntPtr)(ulong)array.Length,
                 NativeMethods.PAGE_EXECUTE_READWRITE,
                 out var lpflOldProtect
             )
         )
         {
             ManualLogSource log3 = Log;
-            BepInExErrorLogInterpolatedStringHandler bepInExErrorLogInterpolatedStringHandler =
-                new BepInExErrorLogInterpolatedStringHandler(129, 1, out isEnabled);
+            BepInExErrorLogInterpolatedStringHandler bepInExErrorLogInterpolatedStringHandler = new(
+                129,
+                1,
+                out isEnabled
+            );
             if (isEnabled)
             {
                 bepInExErrorLogInterpolatedStringHandler.AppendLiteral(
@@ -213,7 +196,7 @@ public class Plugin : BasePlugin
             unmanagedMemoryStream.Write(array, 0, 3);
             NativeMethods.VirtualProtect(
                 lpAddress,
-                (System.UIntPtr)(ulong)array.Length,
+                (UIntPtr)(ulong)array.Length,
                 lpflOldProtect,
                 out lpflOldProtect2
             );
@@ -231,21 +214,24 @@ public class Plugin : BasePlugin
             }
             log4.LogInfo(bepInExInfoLogInterpolatedStringHandler);
         }
-        byte[] array2 = new byte[2] { 144, 144 };
+        byte[] array2 = [144, 144];
         unmanagedMemoryStream.Seek(anchors.IsFace_BranchLessThanZero, SeekOrigin.Begin);
-        System.IntPtr lpAddress2 = (System.IntPtr)unmanagedMemoryStream.PositionPointer;
+        IntPtr lpAddress2 = (IntPtr)unmanagedMemoryStream.PositionPointer;
         if (
             !NativeMethods.VirtualProtect(
                 lpAddress2,
-                (System.UIntPtr)(ulong)array2.Length,
+                (UIntPtr)(ulong)array2.Length,
                 NativeMethods.PAGE_EXECUTE_READWRITE,
                 out var lpflOldProtect3
             )
         )
         {
             ManualLogSource log5 = Log;
-            BepInExErrorLogInterpolatedStringHandler bepInExErrorLogInterpolatedStringHandler =
-                new BepInExErrorLogInterpolatedStringHandler(67, 1, out isEnabled);
+            BepInExErrorLogInterpolatedStringHandler bepInExErrorLogInterpolatedStringHandler = new(
+                67,
+                1,
+                out isEnabled
+            );
             if (isEnabled)
             {
                 bepInExErrorLogInterpolatedStringHandler.AppendLiteral(
@@ -260,12 +246,12 @@ public class Plugin : BasePlugin
         else
         {
             unmanagedMemoryStream.Write(array2, 0, array2.Length);
-            byte[] array3 = new byte[2] { 144, 233 };
+            byte[] array3 = [144, 233];
             unmanagedMemoryStream.Seek(anchors.IsFace_BranchLessThanZero2, SeekOrigin.Begin);
             unmanagedMemoryStream.Write(array3, 0, array3.Length);
             NativeMethods.VirtualProtect(
                 lpAddress2,
-                (System.UIntPtr)(ulong)array2.Length,
+                (UIntPtr)(ulong)array2.Length,
                 lpflOldProtect3,
                 out lpflOldProtect2
             );
@@ -281,21 +267,24 @@ public class Plugin : BasePlugin
             }
             log6.LogInfo(bepInExInfoLogInterpolatedStringHandler);
         }
-        byte[] array4 = new byte[2] { 144, 144 };
+        byte[] array4 = [144, 144];
         unmanagedMemoryStream.Seek(anchors.IsBody_BranchLessThanZero, SeekOrigin.Begin);
-        System.IntPtr lpAddress3 = (System.IntPtr)unmanagedMemoryStream.PositionPointer;
+        IntPtr lpAddress3 = (IntPtr)unmanagedMemoryStream.PositionPointer;
         if (
             !NativeMethods.VirtualProtect(
                 lpAddress3,
-                (System.UIntPtr)(ulong)array4.Length,
+                (UIntPtr)(ulong)array4.Length,
                 NativeMethods.PAGE_EXECUTE_READWRITE,
                 out var lpflOldProtect4
             )
         )
         {
             ManualLogSource log7 = Log;
-            BepInExErrorLogInterpolatedStringHandler bepInExErrorLogInterpolatedStringHandler =
-                new BepInExErrorLogInterpolatedStringHandler(67, 1, out isEnabled);
+            BepInExErrorLogInterpolatedStringHandler bepInExErrorLogInterpolatedStringHandler = new(
+                67,
+                1,
+                out isEnabled
+            );
             if (isEnabled)
             {
                 bepInExErrorLogInterpolatedStringHandler.AppendLiteral(
@@ -310,12 +299,12 @@ public class Plugin : BasePlugin
         else
         {
             unmanagedMemoryStream.Write(array4, 0, array4.Length);
-            byte[] array5 = new byte[2] { 144, 233 };
+            byte[] array5 = [144, 233];
             unmanagedMemoryStream.Seek(anchors.IsBody_BranchLessThanZero2, SeekOrigin.Begin);
             unmanagedMemoryStream.Write(array5, 0, array5.Length);
             NativeMethods.VirtualProtect(
                 lpAddress3,
-                (System.UIntPtr)(ulong)array4.Length,
+                (UIntPtr)(ulong)array4.Length,
                 lpflOldProtect4,
                 out lpflOldProtect2
             );
@@ -335,22 +324,25 @@ public class Plugin : BasePlugin
         // mov    eax,0x1
         // ret
         // ; return 1
-        byte[] array6 = new byte[6] { 184, 1, 0, 0, 0, 195 };
+        byte[] array6 = [184, 1, 0, 0, 0, 195];
 
         unmanagedMemoryStream.Seek(anchors.IsBody_ValidateHumanDataBodyField, SeekOrigin.Begin);
-        System.IntPtr lpAddress4 = (System.IntPtr)unmanagedMemoryStream.PositionPointer;
+        IntPtr lpAddress4 = (IntPtr)unmanagedMemoryStream.PositionPointer;
         if (
             !NativeMethods.VirtualProtect(
                 lpAddress4,
-                (System.UIntPtr)(ulong)array6.Length,
+                (UIntPtr)(ulong)array6.Length,
                 NativeMethods.PAGE_EXECUTE_READWRITE,
                 out var lpflOldProtect5
             )
         )
         {
             ManualLogSource log9 = Log;
-            BepInExErrorLogInterpolatedStringHandler bepInExErrorLogInterpolatedStringHandler =
-                new BepInExErrorLogInterpolatedStringHandler(74, 1, out isEnabled);
+            BepInExErrorLogInterpolatedStringHandler bepInExErrorLogInterpolatedStringHandler = new(
+                74,
+                1,
+                out isEnabled
+            );
             if (isEnabled)
             {
                 bepInExErrorLogInterpolatedStringHandler.AppendLiteral(
@@ -367,7 +359,7 @@ public class Plugin : BasePlugin
             unmanagedMemoryStream.Write(array6, 0, array6.Length);
             NativeMethods.VirtualProtect(
                 lpAddress4,
-                (System.UIntPtr)(ulong)array6.Length,
+                (UIntPtr)(ulong)array6.Length,
                 lpflOldProtect5,
                 out lpflOldProtect2
             );
@@ -386,35 +378,32 @@ public class Plugin : BasePlugin
 
         dictionary_get_item_by_key = intPtr + (int)anchors.GetInfo_DictGetItemWithKey;
         list_get_item = intPtr + (int)anchors.GetInfo_ListGetItem;
-        byte[] array7 = new byte[14] { 255, 37, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-        System.IntPtr intPtr2 = (System.IntPtr)
-            (delegate* unmanaged<
-                System.IntPtr,
-                System.IntPtr,
-                float,
-                System.IntPtr,
-                System.IntPtr,
-                System.IntPtr,
-                System.IntPtr,
-                byte>)(&GetInfo_hk);
+        byte[] array7 = [255, 37, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        IntPtr intPtr2 = (IntPtr)
+            (delegate* unmanaged<IntPtr, IntPtr, float, IntPtr, IntPtr, IntPtr, IntPtr, byte>)(
+                &GetInfo_hk
+            );
         for (int i = 0; i < 8; i++)
         {
             array7[6 + i] = (byte)((intPtr2.ToInt64() >> i * 8) & 0xFF);
         }
         unmanagedMemoryStream.Seek(anchors.AnimationKeyInfo_Controller_GetInfo, SeekOrigin.Begin);
-        System.IntPtr intPtr3 = (System.IntPtr)unmanagedMemoryStream.PositionPointer;
+        IntPtr intPtr3 = (IntPtr)unmanagedMemoryStream.PositionPointer;
         if (
             !NativeMethods.VirtualProtect(
                 intPtr3,
-                (System.UIntPtr)(ulong)array7.Length,
+                (UIntPtr)(ulong)array7.Length,
                 NativeMethods.PAGE_EXECUTE_READWRITE,
                 out var lpflOldProtect6
             )
         )
         {
             ManualLogSource log11 = Log;
-            BepInExErrorLogInterpolatedStringHandler bepInExErrorLogInterpolatedStringHandler =
-                new BepInExErrorLogInterpolatedStringHandler(71, 1, out isEnabled);
+            BepInExErrorLogInterpolatedStringHandler bepInExErrorLogInterpolatedStringHandler = new(
+                71,
+                1,
+                out isEnabled
+            );
             if (isEnabled)
             {
                 bepInExErrorLogInterpolatedStringHandler.AppendLiteral(
@@ -428,18 +417,18 @@ public class Plugin : BasePlugin
             return;
         }
         GetInfo_o = NativeMethods.VirtualAlloc(
-            System.IntPtr.Zero,
-            (System.UIntPtr)4096uL,
+            IntPtr.Zero,
+            (UIntPtr)4096uL,
             NativeMethods.AllocationType.Commit | NativeMethods.AllocationType.Reserve,
             NativeMethods.MemoryProtection.ExecuteReadWrite
         );
-        byte[] array8 = new byte[14] { 255, 37, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-        System.IntPtr intPtr4 = intPtr3 + 15;
+        byte[] array8 = [255, 37, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        IntPtr intPtr4 = intPtr3 + 15;
         for (int j = 0; j < 8; j++)
         {
             array8[6 + j] = (byte)((intPtr4.ToInt64() >> j * 8) & 0xFF);
         }
-        using UnmanagedMemoryStream unmanagedMemoryStream2 = new UnmanagedMemoryStream(
+        using UnmanagedMemoryStream unmanagedMemoryStream2 = new(
             (byte*)(void*)GetInfo_o,
             4096L,
             4096L,
@@ -458,7 +447,7 @@ public class Plugin : BasePlugin
         unmanagedMemoryStream.Write(array7, 0, array7.Length);
         NativeMethods.VirtualProtect(
             intPtr3,
-            (System.UIntPtr)(ulong)array7.Length,
+            (UIntPtr)(ulong)array7.Length,
             lpflOldProtect6,
             out lpflOldProtect2
         );
@@ -477,13 +466,13 @@ public class Plugin : BasePlugin
 
     [UnmanagedCallersOnly]
     private static unsafe byte GetInfo_hk(
-        System.IntPtr a1,
-        System.IntPtr name,
+        IntPtr a1,
+        IntPtr name,
         float rate,
-        System.IntPtr a4,
-        System.IntPtr a5,
-        System.IntPtr a6,
-        System.IntPtr flags
+        IntPtr a4,
+        IntPtr a5,
+        IntPtr a6,
+        IntPtr flags
     )
     {
         float num = rate;
@@ -496,47 +485,25 @@ public class Plugin : BasePlugin
             num = 0f;
         }
         byte b = (
-            (delegate* unmanaged<
-                System.IntPtr,
-                System.IntPtr,
-                float,
-                System.IntPtr,
-                System.IntPtr,
-                System.IntPtr,
-                System.IntPtr,
-                byte>)
+            (delegate* unmanaged<IntPtr, IntPtr, float, IntPtr, IntPtr, IntPtr, IntPtr, byte>)
                 (void*)GetInfo_o
         )(a1, name, num, a4, a5, a6, flags);
         if (b != 0 && (rate < 0f || rate > 1f))
         {
-            System.IntPtr intPtr = *(System.IntPtr*)(void*)(a1 + 16);
-            System.IntPtr intPtr2 = default(System.IntPtr);
+            IntPtr intPtr = *(IntPtr*)(void*)(a1 + 16);
+            IntPtr intPtr2 = default(IntPtr);
             if (
                 (
-                    (delegate* unmanaged<
-                        System.IntPtr,
-                        System.IntPtr,
-                        System.IntPtr,
-                        System.IntPtr,
-                        System.IntPtr*,
-                        byte>)
+                    (delegate* unmanaged<IntPtr, IntPtr, IntPtr, IntPtr, IntPtr*, byte>)
                         (void*)dictionary_get_item_by_key
-                )(System.IntPtr.Zero, System.IntPtr.Zero, intPtr, name, &intPtr2) != 0
+                )(IntPtr.Zero, IntPtr.Zero, intPtr, name, &intPtr2) != 0
             )
             {
-                delegate* unmanaged<
-                    System.IntPtr,
-                    ulong,
-                    System.IntPtr,
-                    System.IntPtr> delegate_002A = (delegate* unmanaged<
-                    System.IntPtr,
-                    ulong,
-                    System.IntPtr,
-                    System.IntPtr>)
-                    list_get_item.ToPointer();
+                delegate* unmanaged<IntPtr, ulong, IntPtr, IntPtr> delegate_002A =
+                    (delegate* unmanaged<IntPtr, ulong, IntPtr, IntPtr>)list_get_item.ToPointer();
                 ulong num2 = *(ulong*)(void*)(intPtr2 + 24);
-                System.IntPtr intPtr3 = delegate_002A(intPtr2, 0uL, System.IntPtr.Zero);
-                System.IntPtr intPtr4 = delegate_002A(intPtr2, num2 - 1, System.IntPtr.Zero);
+                IntPtr intPtr3 = delegate_002A(intPtr2, 0uL, IntPtr.Zero);
+                IntPtr intPtr4 = delegate_002A(intPtr2, num2 - 1, IntPtr.Zero);
                 bool flag = *(byte*)(void*)(flags + 32) != 0;
                 bool flag2 = *(byte*)(void*)(flags + 33) != 0;
                 bool flag3 = *(byte*)(void*)(flags + 34) != 0;
@@ -544,8 +511,8 @@ public class Plugin : BasePlugin
                 {
                     float* ptr = (float*)(void*)(intPtr3 + 20);
                     float* ptr2 = (float*)(void*)(intPtr4 + 20);
-                    Vector3 vector = new Vector3(*ptr, ptr[1], ptr[2]);
-                    Vector3 vector2 = new Vector3(*ptr2, ptr2[1], ptr2[2]);
+                    Vector3 vector = new(*ptr, ptr[1], ptr[2]);
+                    Vector3 vector2 = new(*ptr2, ptr2[1], ptr2[2]);
                     Vector3 vector3 = vector + (vector2 - vector) * rate;
                     float* ptr3 = (float*)(void*)a4;
                     *ptr3 = vector3.x;
@@ -555,7 +522,7 @@ public class Plugin : BasePlugin
                 if (flag2)
                 {
                     uint len = *(uint*)(void*)(name + 16);
-                    System.IntPtr ptr4 = name + 20;
+                    IntPtr ptr4 = name + 20;
                     string text = Marshal.PtrToStringUni(ptr4, (int)len);
                     if (
                         (!text.Contains("thigh") || !text.Contains("01"))
@@ -564,11 +531,11 @@ public class Plugin : BasePlugin
                     {
                         float* ptr5 = (float*)(void*)(intPtr3 + 32);
                         float* ptr6 = (float*)(void*)(intPtr4 + 32);
-                        System.IntPtr intPtr5 = delegate_002A(intPtr2, 1uL, System.IntPtr.Zero);
+                        IntPtr intPtr5 = delegate_002A(intPtr2, 1uL, IntPtr.Zero);
                         float* ptr7 = (float*)(void*)(intPtr5 + 32);
-                        Vector3 rot = new Vector3(*ptr5, ptr5[1], ptr5[2]);
-                        Vector3 rot2 = new Vector3(*ptr6, ptr6[1], ptr6[2]);
-                        Vector3 rot3 = new Vector3(*ptr7, ptr7[1], ptr7[2]);
+                        Vector3 rot = new(*ptr5, ptr5[1], ptr5[2]);
+                        Vector3 rot2 = new(*ptr6, ptr6[1], ptr6[2]);
+                        Vector3 rot3 = new(*ptr7, ptr7[1], ptr7[2]);
                         Vector3 vector4 = SliderMath.CalculateRotation(rot, rot3, rot2, rate);
                         float* ptr8 = (float*)(void*)a5;
                         *ptr8 = vector4.x;
@@ -580,8 +547,8 @@ public class Plugin : BasePlugin
                 {
                     float* ptr9 = (float*)(void*)(intPtr3 + 44);
                     float* ptr10 = (float*)(void*)(intPtr4 + 44);
-                    Vector3 vector5 = new Vector3(*ptr9, ptr9[1], ptr9[2]);
-                    Vector3 vector6 = new Vector3(*ptr10, ptr10[1], ptr10[2]);
+                    Vector3 vector5 = new(*ptr9, ptr9[1], ptr9[2]);
+                    Vector3 vector6 = new(*ptr10, ptr10[1], ptr10[2]);
                     Vector3 vector7 = vector5 + (vector6 - vector5) * rate;
                     float* ptr11 = (float*)(void*)a6;
                     *ptr11 = vector7.x;
@@ -607,14 +574,14 @@ public class Plugin : BasePlugin
     [HarmonyPatch(typeof(HumanCustom), "ConvertTextFromRate")]
     private static void ConvertTextFromRate01Hook(ref string __result, float value)
     {
-        __result = System.Math.Round(100f * value).ToString(CultureInfo.InvariantCulture);
+        __result = Math.Round(100f * value).ToString(CultureInfo.InvariantCulture);
     }
 
     [HarmonyPostfix]
     [HarmonyPatch(
         typeof(HumanCustom),
         "ConvertRateFromText",
-        new System.Type[] { typeof(int), typeof(int), typeof(string) }
+        [typeof(int), typeof(int), typeof(string)]
     )]
     private static void ConvertRateFromTextHook(ref float __result, int min, int max, string buf)
     {
@@ -625,7 +592,7 @@ public class Plugin : BasePlugin
     }
 
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(HumanCustom), "ConvertRateFromText", new System.Type[] { typeof(string) })]
+    [HarmonyPatch(typeof(HumanCustom), "ConvertRateFromText", [typeof(string)])]
     private static void ConvertRateFromTextHook_1a(ref float __result, string buf)
     {
         float result;
@@ -647,13 +614,12 @@ public class Plugin : BasePlugin
     [HarmonyPatch(
         typeof(HumanCustom),
         "EntryUndo",
-        new System.Type[]
-        {
+        [
             typeof(HumanCustom.IInputSlider),
             typeof(Il2CppSystem.Func<float>),
             typeof(Il2CppSystem.Func<float, bool>),
             typeof(CompositeDisposable),
-        }
+        ]
     )]
     private static void EntryUndo_slider_hook(HumanCustom.IInputSlider pack)
     {
@@ -669,18 +635,17 @@ public class Plugin : BasePlugin
     [HarmonyPatch(
         typeof(HumanCustom),
         "EntryUndo",
-        new System.Type[]
-        {
+        [
             typeof(HumanCustom.IInputSliderButton),
             typeof(Il2CppSystem.Func<float>),
             typeof(Il2CppSystem.Func<float, bool>),
             typeof(Il2CppSystem.Func<HumanData, float>),
             typeof(CompositeDisposable),
-        }
+        ]
     )]
     private static void EntryUndo_sliderbutton_hook(HumanCustom.IInputSliderButton pack)
     {
-        HumanCustom.IInputSlider inputSlider = new HumanCustom.IInputSlider(pack.Pointer);
+        HumanCustom.IInputSlider inputSlider = new(pack.Pointer);
         Slider slider = inputSlider.Slider;
         if (slider.maxValue == 1f && slider.minValue == 0f)
         {
