@@ -14,16 +14,16 @@ internal class Anchors
     public readonly long EntryUndo_ClampSliderRatioToOne;
 
     // Character.HumanDataCheck$$IsFace + 0x1d8
-    public readonly long IsFace_BranchLessThanZero;
+    public readonly long IsFace_BranchGreaterThanOne;
 
     // Character.HumanDataCheck$$IsFace + 0x21b
-    public readonly long IsFace_BranchLessThanZero2;
+    public readonly long IsFace_BranchLessThanZero;
 
     // Character.HumanDataCheck$$IsBody + 0x178
-    public readonly long IsBody_BranchLessThanZero;
+    public readonly long IsBody_BranchGreaterThanOne;
 
     // Character.HumanDataCheck$$IsBody + 0x1bb
-    public readonly long IsBody_BranchLessThanZero2;
+    public readonly long IsBody_BranchLessThanZero;
 
     // called in Character.HumanDataCheck$$IsBody to check HumanDataBody fields
     // sample from v1.1.2:
@@ -77,28 +77,28 @@ internal class Anchors
         AssertAddr(0x180727a20, EntryUndo_ClampSliderRatioToOne);
 
         // 0x180680518
-        IsFace_BranchLessThanZero = Search(
+        IsFace_BranchGreaterThanOne = Search(
             "7f ?? ?? 8b 46 38 ?? 89 75 7f ?? 8b 00 f6 80 32 01 00 00 01 75 ?? ?? 8b c8 e8 ?? ?? ?? ?? ?? 8d 55 7f ?? 8b c8 e8",
             assert: 0x180680518
         );
 
         // 0x18068055b
-        IsFace_BranchLessThanZero2 = Search(
+        IsFace_BranchLessThanZero = Search(
             "0f 85 ?? ?? ?? ?? ?? 85 ff 74 ?? ?? 8b 0d ?? ?? ?? ?? ?? 39 b1 e0 00 00 00 75 ?? e8",
-            IsFace_BranchLessThanZero,
+            IsFace_BranchGreaterThanOne,
             assert: 0x18068055b
         );
 
         // 0x180681728
-        IsBody_BranchLessThanZero = Search(
+        IsBody_BranchGreaterThanOne = Search(
             "7f ?? ?? 8b 46 38 ?? 89 65 48 ?? 8b 00 f6 80 32 01 00 00 01 75 ?? ?? 8b c8 e8 ?? ?? ?? ?? ?? 8d 55 48",
             assert: 0x180681728
         );
 
         // 0x18068176b
-        IsBody_BranchLessThanZero2 = Search(
+        IsBody_BranchLessThanZero = Search(
             "0f 85 ?? ?? ?? ?? ?? 85 f6 74 ?? ?? 8b 0d ?? ?? ?? ?? ?? 39 a1 e0 00 00 00",
-            IsBody_BranchLessThanZero,
+            IsBody_BranchGreaterThanOne,
             assert: 0x18068176b
         );
 

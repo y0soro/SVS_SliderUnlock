@@ -215,7 +215,7 @@ public class Plugin : BasePlugin
             log4.LogInfo(bepInExInfoLogInterpolatedStringHandler);
         }
         byte[] array2 = [144, 144];
-        unmanagedMemoryStream.Seek(anchors.IsFace_BranchLessThanZero, SeekOrigin.Begin);
+        unmanagedMemoryStream.Seek(anchors.IsFace_BranchGreaterThanOne, SeekOrigin.Begin);
         IntPtr lpAddress2 = (IntPtr)unmanagedMemoryStream.PositionPointer;
         if (
             !NativeMethods.VirtualProtect(
@@ -247,7 +247,7 @@ public class Plugin : BasePlugin
         {
             unmanagedMemoryStream.Write(array2, 0, array2.Length);
             byte[] array3 = [144, 233];
-            unmanagedMemoryStream.Seek(anchors.IsFace_BranchLessThanZero2, SeekOrigin.Begin);
+            unmanagedMemoryStream.Seek(anchors.IsFace_BranchLessThanZero, SeekOrigin.Begin);
             unmanagedMemoryStream.Write(array3, 0, array3.Length);
             NativeMethods.VirtualProtect(
                 lpAddress2,
@@ -268,7 +268,7 @@ public class Plugin : BasePlugin
             log6.LogInfo(bepInExInfoLogInterpolatedStringHandler);
         }
         byte[] array4 = [144, 144];
-        unmanagedMemoryStream.Seek(anchors.IsBody_BranchLessThanZero, SeekOrigin.Begin);
+        unmanagedMemoryStream.Seek(anchors.IsBody_BranchGreaterThanOne, SeekOrigin.Begin);
         IntPtr lpAddress3 = (IntPtr)unmanagedMemoryStream.PositionPointer;
         if (
             !NativeMethods.VirtualProtect(
@@ -300,7 +300,7 @@ public class Plugin : BasePlugin
         {
             unmanagedMemoryStream.Write(array4, 0, array4.Length);
             byte[] array5 = [144, 233];
-            unmanagedMemoryStream.Seek(anchors.IsBody_BranchLessThanZero2, SeekOrigin.Begin);
+            unmanagedMemoryStream.Seek(anchors.IsBody_BranchLessThanZero, SeekOrigin.Begin);
             unmanagedMemoryStream.Write(array5, 0, array5.Length);
             NativeMethods.VirtualProtect(
                 lpAddress3,
