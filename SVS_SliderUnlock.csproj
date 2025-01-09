@@ -3,7 +3,7 @@
     <Product>SVS_SliderUnlock</Product>
     <AssemblyName>SVS_SliderUnlock</AssemblyName>
     <RootNamespace>SVS_SliderUnlock</RootNamespace>
-    <Version>3.0.1</Version>
+    <Version>3.0.2</Version>
     <TargetFramework>net6.0</TargetFramework>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
