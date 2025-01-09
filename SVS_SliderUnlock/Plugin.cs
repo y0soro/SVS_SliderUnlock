@@ -571,7 +571,7 @@ public class Plugin : BasePlugin
     }
 
     [HarmonyPostfix]
-    [HarmonyPatch(typeof(HumanCustom), "ConvertTextFromRate")]
+    [HarmonyPatch(typeof(HumanCustom), nameof(HumanCustom.ConvertTextFromRate01))]
     private static void ConvertTextFromRate01Hook(ref string __result, float value)
     {
         __result = Math.Round(100f * value).ToString(CultureInfo.InvariantCulture);
