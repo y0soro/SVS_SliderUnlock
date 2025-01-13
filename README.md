@@ -6,7 +6,8 @@ The SVS_SliderUnlock is now made portable by using byte pattern searches to loca
 
 ## Known Issue
 
-- Eye highlight size can still only be adjusted in 0-100 range.
+- Issue: Eye material size can still only be adjusted in 0-100 range.
+- Solution, TODO: remove all ratio clamping in callers of ILLGames.Unity.Animations.EyeLookMaterialControll$${ApplyPosition,ApplyPupilSize}
 
 ## COPYING
 
