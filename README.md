@@ -1,3 +1,5 @@
+**Superseded by [ILL_SliderUnlocker](https://github.com/y0soro/ILL_Plugins/blob/main/src/Shared_SliderUnlocker/README.md).**
+
 # SVS_SliderUnlock revived
 
 The credit of SliderUnlock functionalities goes to the original author @Samsung Galaxy Note 10+. I am just doing porting stuff.
